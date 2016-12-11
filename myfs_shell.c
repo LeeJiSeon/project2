@@ -1,68 +1,127 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>                                
+#include <time.h>
 
+typedef struct bootblock{
+   unsigned boot_block : 16;
+}bootblock;   // 부트블록
+typedef struct superblock{ 
+	unsigned char inode_ch[64]; 
+	unsigned char datab_ch[128]; 
+}superblock;
+typedef struct datablock{
+	char data_b[128];
+	struct datablock *next;
+}datablock;
+typedef struct inodelist{ 
+	_Bool type; //0 : 일반 1 : 디렉터리 
+	int time[6];
+	/*struct tm *t; 
+	time_t now; 
+	now=time(NULL); 
+	  t=localtime(&now);*/
+   unsigned short direct[3]; // 0: direct 1: single 2:double
+	int size; 
+}inodelist;
+typedef struct tree{
+	char dir[4];
+	struct tree *left;
+	struct tree *right;
+}tree;
+
+tree *root;
+tree *before;
+tree *now;
+tree *after;
+void promptree();
+char now_dir[10];
+//                  함 수                   //
+void myls();
+void mypwd();
+void mytouch(char []);
+void mycpfrom(char []);
 int main(){
-	char now_dir[10] = "/ ";
+	inodelist inode[512];
+	datablock data[1024];
 	char order[20] = {0};
 	char option_filename[3][5] = {0};
-	FILE *ifp;
-	char order_list[18][20] = {"mymkfs","myls","mycat","myshowfile","mypwd","mycd","mycp","mycpto","mycpfrom","mymkdir","myrmdir","myrm","mymv","mytouch","myshowinode","myshowblock","mystate","mytree"};
+	FILE *inp=fopen("myfs","rb");
 	int ch;
-
+	/*	if((inp = fopen("myfs", "rb"))==NULL){
+		printf("error : no myfs");
+		return -1;
+		} */
 	while(1)
 	{
-		printf("[%s]$ ",now_dir);
+		strcpy(now_dir,"/ ");
+		printf("[%s ]", now_dir);
+		void promptree();
 		gets(order);
 
 		for(int i = 0 ; i < 18 ; i++)
 		{
 			if((order[i] == '\0')&&(order[i+1] != '\0')) //ex) mymkdir a 를 mymkdir은 order[]에 넣고 a는 option_filename[]에 넣고싶다...
 			{
-				for(int j = 0, int k = 0 ; j < 3; j++)
+				for(int j = 0; j < 3; j++)
 				{
 					//option_filename[j][k] = order[i+1]
 				}
 			}
 		}
-
-		if((strncmp(order,order_list[0],strlen(order))) == 0)
-			mymkfs();	
-		else if((strncmp(order,order_list[1],strlen(order))) == 0)
+		if((strncmp("myls",order,4)) == 0)
 			myls();
-		else if((strncmp(order,order_list[2],strlen(order))) == 0)
-			mycat();
-		else if((strncmp(order,order_list[3],strlen(order))) == 0)
-			myshowfile();
-		else if((strncmp(order,order_list[4],strlen(order))) == 0)
-			mypwd();
-		else if((strncmp(order,order_list[5],strlen(order))) == 0)
-			mycd();
-		else if((strncmp(order,order_list[6],strlen(order))) == 0)
-			mycp();
-		else if((strncmp(order,order_list[7],strlen(order))) == 0)
-			mycpto();
-		else if((strncmp(order,order_list[8],strlen(order))) == 0)
-			mycpfrom();
-		else if((strncmp(order,order_list[9],strlen(order))) == 0)
-			mymkdir();
-		else if((strncmp(order,order_list[10],strlen(order))) == 0)
-			myrmdir();
-		else if((strncmp(order,order_list[11],strlen(order))) == 0)
-			myrm();
-		else if((strncmp(order,order_list[12],strlen(order))) == 0)
-			mymv();
-		else if((strncmp(order,order_list[13],strlen(order))) == 0)
+		else if((strncmp("mypwd",order,5))== 0)
+			printf("%s\n", now_dir);
+	//	else if((strncmp("mycpfrom",order,8)) == 0)
+	//		mycpfrom();
+	/*	else if((strncmp("mytouch",order,7)) == 0)
 			mytouch();
-		else if((strncmp(order,order_list[14],strlen(order))) == 0)
+			else if((strncmp("mycat",order,5)) == 0)
+			mycat();
+			else if((strncmp("myshowfile",order,10)) == 0)
+			myshowfile();
+			else if((strncmp("mycd",order,4)) == 0)
+			mycd();
+			else if((strncmp("mycp",order,4)) == 0)
+			mycp();
+			else if((strncmp("mycpto",order,6)) == 0)
+			mycpto();
+			else if((strncmp("mycpfrom",order,8)) == 0)
+			mycpfrom();
+			else if((strncmp("mymkdir",order,7)) == 0)
+			mymkdir();
+			else if((strncmp("myrmdir",order,7)) == 0)
+			myrmdir();
+			else if((strncmp("myrm",order,4)) == 0)
+			myrm();
+			else if((strncmp("mymv",order,4)) == 0)
+			mymv();
+			else if((strncmp("myshowinode",order,11)) == 0)
 			myshowinode();
-		else if((strncmp(order,order_list[15],strlen(order))) == 0)
+			else if((strncmp("myshowblock",order,11)) == 0)
 			myshowblock();
-		else if((strncmp(order,order_list[16],strlen(order))) == 0)
+			else if((strncmp("mystate",order,7)) == 0)
 			mystate();
-		else if((strncmp(order,order_list[17],strlen(order))) == 0)
-			mytree();
+			else if((strncmp("mytree",order,6)) == 0)
+			mytree(); */
+		else if(strncmp(order,"byebye",6) == 0) {
+			break;
+			//fwrite or fread
+		}
+	else if(strncmp(order,"my",2)!=0)
+			system(order);
 	}
-}
-return 0;
+	return 0;
 }
 
+void promptree(){
+
+	strcpy(now->dir, "/");
+	root = now;
+	before = NULL;
+}
+void myls(){
+	printf(".\n..\n");
+
+}
